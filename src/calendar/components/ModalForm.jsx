@@ -15,6 +15,7 @@ import "./ModalForm.css";
 import "react-datepicker/dist/react-datepicker.css";
 
 import { useCalendarStore, useUiStore } from "../../hooks";
+import { useSelector } from "react-redux";
 
 const customStyles = {
   content: {
@@ -57,8 +58,8 @@ export const ModalForm = () => {
 
   const onSubmit = async (event) => {
     event.preventDefault();
-    console.log("Guardar");
     setForSubmitted(true);
+
     const difference = differenceInSeconds(formValue.end, formValue.start);
     if (isNaN(difference) || difference <= 0) {
       Swal.fire({

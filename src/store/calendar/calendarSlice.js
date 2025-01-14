@@ -1,29 +1,23 @@
 import { createSlice } from "@reduxjs/toolkit";
-import { addHours } from "date-fns";
+import { onLogout } from "../auth/authSlice";
+// import { addHours } from "date-fns";
 
-const tempEvent = {
-  _id: new Date().getTime(),
-  title: "Cumpleaños",
-  notes: "Hay que comprar el pastel",
-  start: new Date(),
-  end: addHours(new Date(), 2),
-  bgColor: "#fafafa",
-  user: {
-    _id: "123",
-    name: "Carlos",
-  },
-};
+// const tempEvent = {
+//   _id: new Date().getTime(),
+//   title: "Cumpleaños",
+//   notes: "Hay que comprar el pastel",
+//   start: new Date(),
+//   end: addHours(new Date(), 2),
+//   bgColor: "#fafafa",
+//   user: {
+//     _id: "123",
+//     name: "Carlos",
+//   },
+// };
 
 const initialState = {
-  events: [
-    {
-      id: 6,
-      title: "Meeting",
-      start: new Date(2024, 11, 12, 10, 30, 0, 0),
-      end: new Date(2024, 11, 12, 12, 30, 0, 0),
-      desc: "Pre-meeting meeting, to prepare for the meeting",
-    },
-  ],
+  isLoadingEvents: true,
+  events: [],
   activeEvent: null,
 };
 
@@ -39,10 +33,13 @@ export const calendarSlice = createSlice({
     onSetActiveEvent: (state, { payload }) => {
       state.activeEvent = payload;
     },
+    onUnSetActiveEvent: (state, { payload }) => {
+      state.activeEvent = null;
+    },
 
     onUpdateEvent: (state, { payload }) => {
       state.events = state.events.map((event) => {
-        if (event._id === payload._id) {
+        if (event.id === payload.id) {
           return payload;
         }
         return event;
@@ -51,13 +48,36 @@ export const calendarSlice = createSlice({
     onDeleteEvent: (state) => {
       if (state.activeEvent) {
         state.events = state.events.filter(
-          (event) => event._id !== state.activeEvent._id
+          (event) => event.id !== state.activeEvent.id
         );
         state.activeEvent = null;
       }
     },
+
+    onLoadEvents: (state, { payload = [] }) => {
+      state.isLoadingEvents = false;
+      // state.events = payload;
+      payload.forEach((event) => {
+        const exists = state.events.some((dbEvent) => dbEvent.id === event.id);
+        if (!exists) {
+          state.events.push(event);
+        }
+      });
+    },
+
+    onLogoutCalendar: (state) => {
+      state.events = [];
+      state.activeEvent = null;
+    },
   },
 });
 
-export const { onAddNewEvent, onSetActiveEvent, onUpdateEvent, onDeleteEvent } =
-  calendarSlice.actions;
+export const {
+  onAddNewEvent,
+  onDeleteEvent,
+  onLoadEvents,
+  onLogoutCalendar,
+  onSetActiveEvent,
+  onUnSetActiveEvent,
+  onUpdateEvent,
+} = calendarSlice.actions;

@@ -7,6 +7,7 @@ export const FabDeleteEvent = () => {
 
   const handelDelete = () => {
     startDeleteEvent(activeEvent);
+
     closeDateModal();
   };
   return (
