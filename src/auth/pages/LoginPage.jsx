@@ -36,6 +36,7 @@ export const LoginPage = () => {
     event.preventDefault();
     startLogin({ email: loginEmail, password: loginPassword });
   };
+
   const handelRegisterSubmit = (event) => {
     event.preventDefault();
     if (registerPassword !== registerPassword2) {

@@ -1,5 +1,7 @@
 import axios from "axios";
-import { useDispatch } from "react-redux";
+import { logger } from "react-native-logs";
+
+const log = logger.createLogger();
 
 const calendarApi = axios.create({
   baseURL: import.meta.env.VITE_API_URL,
@@ -20,6 +22,7 @@ calendarApi.interceptors.request.use(
     return config;
   },
   (error) => {
+    log.error("Error en la solicitud", error);
     // Manejar errores antes de enviar la solicitud
     return Promise.reject(error);
   }
