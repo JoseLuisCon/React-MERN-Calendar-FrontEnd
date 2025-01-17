@@ -1,24 +1,45 @@
-import { useCalendarStore, useUiStore } from "../../hooks";
+import { useDispatch, useSelector } from 'react-redux'
+
+import { deleteEventThunk } from '../../store/calendar/calendarThunks'
+import { showAlertErrorMessages } from '../../helpers'
+import { useUiStore } from '../../hooks'
 
 export const FabDeleteEvent = () => {
-  const { startDeleteEvent, activeEvent, hasEventSelected } =
-    useCalendarStore();
-  const { closeDateModal, isDateModelOpen } = useUiStore();
+  const dispatch = useDispatch()
+  const { activeEvent } = useSelector(state => state.calendar)
+  const { closeDateModal, isDateModelOpen } = useUiStore()
 
   const handelDelete = () => {
-    startDeleteEvent(activeEvent);
+    dispatch(deleteEventThunk(activeEvent))
+      .unwrap()
+      .then(resp => {
+        if (resp.id === activeEvent.id) {
+          showAlertErrorMessages({
+            error: { msg: `Evento ${resp.title} eliminado` },
+            title: 'Borrado de la base de datos',
+            icon: 'success'
+          })
+        }
+      })
+      .catch(error => {
+        showAlertErrorMessages({
+          error,
+          title: 'Error al eliminar el evento',
+          icon: 'error'
+        })
+      })
 
-    closeDateModal();
-  };
+    closeDateModal()
+  }
   return (
     <button
-      className="btn btn-danger fab-delete"
+      className='btn btn-danger fab-delete'
       onClick={handelDelete}
       style={{
-        display: hasEventSelected && isDateModelOpen == false ? "" : "none",
+        display: activeEvent && isDateModelOpen == false ? '' : 'none'
       }}
     >
-      <i className="fas fa-trash-alt"></i>
+      <i className='fas fa-trash-alt'></i>
     </button>
-  );
-};
+  )
+}

@@ -1,83 +1,101 @@
-import { createSlice } from "@reduxjs/toolkit";
-import { onLogout } from "../auth/authSlice";
-// import { addHours } from "date-fns";
-
-// const tempEvent = {
-//   _id: new Date().getTime(),
-//   title: "Cumpleaños",
-//   notes: "Hay que comprar el pastel",
-//   start: new Date(),
-//   end: addHours(new Date(), 2),
-//   bgColor: "#fafafa",
-//   user: {
-//     _id: "123",
-//     name: "Carlos",
-//   },
-// };
+import { createSlice } from '@reduxjs/toolkit'
+import {
+  addNewEventThunk,
+  deleteEventThunk,
+  getEventsThunk,
+  updateEvenThunk
+} from './calendarThunks'
 
 const initialState = {
   isLoadingEvents: true,
   events: [],
   activeEvent: null,
-};
+  errorMessage: null
+}
 
 export const calendarSlice = createSlice({
-  name: "calendar",
+  name: 'calendar',
   initialState,
   reducers: {
-    onAddNewEvent: (state, { payload }) => {
-      state.events.push(payload);
-      state.activeEvent = null;
-    },
-
     onSetActiveEvent: (state, { payload }) => {
-      state.activeEvent = payload;
+      state.activeEvent = payload
     },
     onUnSetActiveEvent: (state, { payload }) => {
-      state.activeEvent = null;
+      state.activeEvent = null
     },
-
-    onUpdateEvent: (state, { payload }) => {
-      state.events = state.events.map((event) => {
-        if (event.id === payload.id) {
-          return payload;
-        }
-        return event;
-      });
-    },
-    onDeleteEvent: (state) => {
-      if (state.activeEvent) {
-        state.events = state.events.filter(
-          (event) => event.id !== state.activeEvent.id
-        );
-        state.activeEvent = null;
-      }
-    },
-
-    onLoadEvents: (state, { payload = [] }) => {
-      state.isLoadingEvents = false;
-      // state.events = payload;
-      payload.forEach((event) => {
-        const exists = state.events.some((dbEvent) => dbEvent.id === event.id);
-        if (!exists) {
-          state.events.push(event);
-        }
-      });
-    },
-
-    onLogoutCalendar: (state) => {
-      state.events = [];
-      state.activeEvent = null;
-    },
+    onLogoutCalendar: state => {
+      state.events = []
+      state.activeEvent = null
+    }
   },
-});
+  extraReducers: builder => {
+    builder.addCase(getEventsThunk.pending, state => {
+      state.isLoadingEvents = true
+      state.activeEvent = null
+      state.errorMessage = null
+    })
+    builder.addCase(getEventsThunk.fulfilled, (state, { payload = [] }) => {
+      state.isLoadingEvents = false
+      state.events = payload
+      state.activeEvent = null
+      state.errorMessage = null
+    })
+    builder.addCase(getEventsThunk.rejected, (state, { payload }) => {
+      state.isLoadingEvents = false
+      state.errorMessage = payload
+      state.activeEvent = null
+      state.events = []
+    })
+    builder.addCase(addNewEventThunk.pending, state => {
+      state.isLoadingEvents = true
+      state.activeEvent = null
+      state.errorMessage = null
+    })
+    builder.addCase(addNewEventThunk.fulfilled, (state, { payload }) => {
+      state.isLoadingEvents = false
+      state.events.push(payload)
+      state.activeEvent = null
+      state.errorMessage = null
+    })
+    builder.addCase(addNewEventThunk.rejected, (state, { payload }) => {
+      state.isLoadingEvents = false
+      state.errorMessage = payload
+    })
 
-export const {
-  onAddNewEvent,
-  onDeleteEvent,
-  onLoadEvents,
-  onLogoutCalendar,
-  onSetActiveEvent,
-  onUnSetActiveEvent,
-  onUpdateEvent,
-} = calendarSlice.actions;
+    builder.addCase(updateEvenThunk.pending, state => {
+      state.isLoadingEvents = true
+      state.activeEvent = null
+      state.errorMessage = null
+    })
+
+    builder.addCase(updateEvenThunk.fulfilled, (state, { payload }) => {
+      state.isLoadingEvents = false
+      state.events = state.events.map(event =>
+        event.id === payload.id ? payload : event
+      )
+      state.activeEvent = null
+      state.errorMessage = null
+    })
+    builder.addCase(updateEvenThunk.rejected, (state, { payload }) => {
+      state.isLoadingEvents = false
+      state.errorMessage = payload
+    })
+    builder.addCase(deleteEventThunk.pending, state => {
+      state.isLoadingEvents = true
+      state.errorMessage = null
+    })
+    builder.addCase(deleteEventThunk.fulfilled, (state, { payload }) => {
+      state.isLoadingEvents = false
+      state.events = state.events.filter(event => event.id !== payload.id)
+      state.activeEvent = null
+    })
+    builder.addCase(deleteEventThunk.rejected, (state, { payload }) => {
+      state.isLoadingEvents = false
+      state.activeEvent = null
+      state.errorMessage = payload
+    })
+  }
+})
+
+export const { onLogoutCalendar, onSetActiveEvent, onUnSetActiveEvent } =
+  calendarSlice.actions

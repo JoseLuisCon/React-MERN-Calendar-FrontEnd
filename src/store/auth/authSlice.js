@@ -1,4 +1,9 @@
 import { createSlice } from "@reduxjs/toolkit";
+import {
+  loginUserThunk,
+  registerUserThunk,
+  renewTokenThunk,
+} from "./AsyncThunkAuth";
 
 const initialState = {
   status: "not-authenticated", // 'checking' | 'authenticated' | 'not-authenticated'
@@ -10,26 +15,50 @@ export const authSlice = createSlice({
   name: "auth",
   initialState,
   reducers: {
-    onChecking: (state) => {
-      state.status = "checking";
-      state.user = {};
-      state.errorMessage = undefined;
-    },
-    onLogin: (state, { payload }) => {
-      state.status = "authenticated";
-      state.user = payload;
-      state.errorMessage = undefined;
-    },
     onLogout: (state, { payload }) => {
       state.status = "not-authenticated";
       state.user = {};
       state.errorMessage = payload;
     },
-    clearErrorMessage: (state) => {
-      state.errorMessage = undefined;
-    },
+  },
+  extraReducers: (builder) => {
+    builder.addCase(loginUserThunk.pending, (state) => {
+      state.status = "checking";
+    });
+    builder.addCase(loginUserThunk.fulfilled, (state, { payload }) => {
+      state.status = "authenticated";
+      state.user = payload;
+    });
+    builder.addCase(loginUserThunk.rejected, (state, { payload }) => {
+      state.status = "not-authenticated";
+      state.errorMessage = payload;
+    });
+
+    builder.addCase(registerUserThunk.pending, (state) => {
+      state.status = "checking";
+    });
+    builder.addCase(registerUserThunk.fulfilled, (state, { payload }) => {
+      state.status = "authenticated";
+      state.user = payload;
+    });
+    builder.addCase(registerUserThunk.rejected, (state, { payload }) => {
+      state.status = "not-authenticated";
+      state.user = {};
+      state.errorMessage = payload;
+    });
+
+    builder.addCase(renewTokenThunk.pending, (state) => {
+      state.status = "checking";
+    });
+    builder.addCase(renewTokenThunk.fulfilled, (state, { payload }) => {
+      state.status = "authenticated";
+      state.user = payload;
+    });
+    builder.addCase(renewTokenThunk.rejected, (state) => {
+      state.status = "not-authenticated";
+      state.user = {};
+    });
   },
 });
 
-export const { onChecking, onLogin, onLogout, clearErrorMessage } =
-  authSlice.actions;
+export const { onLogout } = authSlice.actions;

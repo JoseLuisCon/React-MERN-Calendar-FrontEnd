@@ -1,27 +1,15 @@
-import { addHours } from "date-fns";
-import { useCalendarStore, useUiStore } from "../../hooks";
+import { useDispatch } from 'react-redux'
+import { onOpenDateModal } from '../../store'
 
 export const FabAddNew = () => {
-  const { openDateModal } = useUiStore();
-  const { setActiveEvent } = useCalendarStore();
+  const dispatch = useDispatch()
 
-  const handelClickNew = () => {
-    setActiveEvent({
-      title: "",
-      notes: "",
-      start: new Date(),
-      end: addHours(new Date(), 2),
-      bgColor: "#fafafa",
-      user: {
-        _id: "123",
-        name: "Fernando",
-      },
-    });
-    openDateModal();
-  };
   return (
-    <button className="btn btn-primary fab" onClick={handelClickNew}>
-      <i className="fas fa-plus"></i>
+    <button
+      className='btn btn-primary fab'
+      onClick={() => dispatch(onOpenDateModal())}
+    >
+      <i className='fas fa-plus'></i>
     </button>
-  );
-};
+  )
+}

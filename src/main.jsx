@@ -1,13 +1,13 @@
-import { StrictMode } from "react";
-import { createRoot } from "react-dom/client";
-import { BrowserRouter } from "react-router";
+import { StrictMode } from 'react'
+import { createRoot } from 'react-dom/client'
+import { BrowserRouter } from 'react-router'
 
-import { CalendarApp } from "./CalendarApp";
+import { CalendarApp } from './CalendarApp'
 
-import "./styles.css";
+import './styles.css'
 
-createRoot(document.getElementById("root")).render(
-  <StrictMode>
-    <CalendarApp />
-  </StrictMode>
-);
+createRoot(document.getElementById('root')).render(
+  // <StrictMode>
+  <CalendarApp />
+  /* </StrictMode> */
+)

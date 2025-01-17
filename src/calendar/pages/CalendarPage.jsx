@@ -1,75 +1,78 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState } from 'react'
+import { useDispatch, useSelector } from 'react-redux'
 
-import { Calendar } from "react-big-calendar";
-import "react-big-calendar/lib/css/react-big-calendar.css";
+import { Calendar } from 'react-big-calendar'
+import 'react-big-calendar/lib/css/react-big-calendar.css'
 
-import { localizer, getMessagesES } from "../../helpers";
+import { localizer, getMessagesES } from '../../helpers'
 import {
   CalendarEvent,
   FabAddNew,
   FabDeleteEvent,
   ModalForm,
-  NavBar,
-} from "../";
-import { useAuthStore, useUiStore } from "../../hooks";
-import { useCalendarStore } from "../../hooks";
+  NavBar
+} from '../'
+
+import { getEventsThunk, onSetActiveEvent } from '../../store'
+import { useUiStore } from '../../hooks'
 
 export const CalendarPage = () => {
-  const { user } = useAuthStore();
-  const { openDateModal } = useUiStore();
-  const { events, setActiveEvent, startLoadingEvents } = useCalendarStore();
+  const { openDateModal } = useUiStore()
+  const { events } = useSelector(state => state.calendar)
+  const { user } = useSelector(state => state.auth)
+  const dispatch = useDispatch()
 
   const [lastView, setLastView] = useState(
-    localStorage.getItem("lastView") || "week"
-  );
+    localStorage.getItem('lastView') || 'week'
+  )
 
   const eventStyleGetter = (event, start, end, isSelected) => {
-    const isMyEvent =
-      user.uid === event.user._id || user.uid === event.user.uid;
     const style = {
-      backgroundColor: isMyEvent ? "#347cf7" : "#465660",
-      borderRadios: "0px",
+      backgroundColor: user.uid === event.user.id ? '#347cf7' : '#465660',
+      borderRadios: '0px',
       opacity: 0.8,
-      color: "white",
-    };
+      color: 'white'
+    }
 
-    return { style };
-  };
+    if (isSelected) {
+      style.opacity = 1
+    }
+    return { style }
+  }
 
   const onDoubleClick = () => {
-    // console.log("🚀 ~ onDoubleClick ~ event:", event);
-    openDateModal();
-  };
-  const onSelect = (event) => {
-    // console.log("🚀 ~ onSelect ~ event:", event);
-    setActiveEvent(event);
-  };
+    openDateModal()
+  }
+  const onSelect = event => {
+    dispatch(onSetActiveEvent(event))
+  }
 
-  const onViewChanged = (event) => {
-    // setLastView(event);
-    localStorage.setItem("lastView", event);
-  };
+  const onViewChanged = event => {
+    setLastView(event)
+    localStorage.setItem('lastView', event)
+  }
 
   useEffect(() => {
-    startLoadingEvents();
-  }, []);
+    dispatch(getEventsThunk())
+  }, [])
 
   return (
     <div>
       <NavBar />
-      <div className="container">
+      <div style={{ padding: '20px' }}>
         <Calendar
-          culture="es"
+          culture='es'
           localizer={localizer}
           events={events}
           defaultView={lastView}
-          startAccessor="start"
-          endAccessor="end"
-          style={{ height: "calc(100vh - 80px)" }}
+          defaultDate={new Date()}
+          startAccessor='start'
+          endAccessor='end'
+          style={{ height: 'calc(100vh - 80px)' }}
           messages={getMessagesES()}
           eventPropGetter={eventStyleGetter}
           components={{
-            event: CalendarEvent,
+            event: CalendarEvent
           }}
           onDoubleClickEvent={onDoubleClick}
           onSelectEvent={onSelect}
@@ -80,5 +83,5 @@ export const CalendarPage = () => {
       <FabAddNew />
       <FabDeleteEvent />
     </div>
-  );
-};
+  )
+}

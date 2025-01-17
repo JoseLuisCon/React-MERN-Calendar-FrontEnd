@@ -1,14 +1,14 @@
-import { useSelector } from "react-redux";
-import { useAuthStore, useCalendarStore } from "../../hooks";
+import { useDispatch, useSelector } from "react-redux";
+import { onLogout, onLogoutCalendar } from "../../store";
 
 export const NavBar = () => {
-  const { startLogout } = useAuthStore();
-
   const { user } = useSelector((state) => state.auth);
+  const dispatch = useDispatch();
+
   const handleOutApp = () => {
-    startLogout();
-    localStorage.removeItem("token");
-    localStorage.removeItem("token-init-date");
+    localStorage.clear();
+    dispatch(onLogoutCalendar());
+    dispatch(onLogout());
   };
 
   return (
